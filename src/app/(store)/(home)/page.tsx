@@ -3,8 +3,19 @@ import { Product } from '@/data/types/products'
 import Image from 'next/image'
 import Link from 'next/link'
 
+/**
+ * Memoization: Se a mesma requisição é feita duas vezes no carregamento de uma página, o next a fará apenas uma vez
+ *
+ * Cache: Permite que eu compartilhe a response de uma página com outras que usam a mesma response
+ */
+
 async function getFeaturedProducts(): Promise<Product[]> {
-  const response = await api('/products/featured')
+  const response = await api('/products/featured', {
+    // cache: 'force-cache' // Faz o cache da request por tempo indeterminado
+    next: {
+      revalidate: 60 * 60, // Salva o retorno em cache, e dentro de uma hora essa request não será reenviada, após uma hora ela pode ser feita e salva novamente
+    },
+  })
 
   const products = await response.json()
 
